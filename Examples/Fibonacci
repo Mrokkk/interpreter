@@ -1,0 +1,28 @@
+// Computes number in fibonacci sequence
+function fibonacci(n)
+{
+    a = 0;
+    b = 1;
+    i = 0;
+
+    while (i < n)
+    {
+        c = b;
+        b = a + b;
+        a = c;
+        i = i + 1;
+    }
+    return a;
+}
+
+function init()
+{
+    print("initialized");
+}
+
+i = 0;
+while (i < 32)
+{
+    print(fibonacci(i));
+    i = i + 1;
+}

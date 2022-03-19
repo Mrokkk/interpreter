@@ -1,0 +1,36 @@
+import Fibonacci
+
+function d()
+{
+    return x;
+}
+
+function e()
+{
+    d();
+}
+
+function f()
+{
+    e();
+}
+
+function main()
+{
+    i = 0;
+    while (i < 40)
+    {
+        print(fibonacci(i));
+        i = i + 1;
+    }
+    try
+    {
+        f();
+    }
+    catch (exception)
+    {
+        print("Caught exception: " + exception);
+    }
+}
+
+main();
