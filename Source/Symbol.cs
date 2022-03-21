@@ -9,8 +9,8 @@ public enum Types
     Double,
     String,
     Bool,
-    function,
-    exception,
+    Function,
+    Exception,
     List,
     IntList,
     FloatList,
@@ -36,7 +36,7 @@ public class FunctionObject : Symbol
     public List<string> argumentNames;
 
     public FunctionObject(object callable, List<string> argumentNames)
-        : base(callable, Types.function, true)
+        : base(callable, Types.Function, true)
     {
         this.argumentNames = argumentNames ?? new List<string>();
     }

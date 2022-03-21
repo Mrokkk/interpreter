@@ -8,10 +8,12 @@ public class Executor
     Action<string> print;
     ExecutionContext context;
     Builtins builtins;
+    Logger logger;
 
     public Executor(Action<string> print)
     {
         this.print = print;
+        this.logger = Logging.CreateLogger(this.GetType().Name);
 
         CastingSystem.Initialize(); // FIXME: make class non-static
 
@@ -23,7 +25,7 @@ public class Executor
         context = new ExecutionContext(stackFrame, builtins);
         foreach (var symbolName in builtins.GetFunctions())
         {
-            context.currentFrame.symbols[symbolName] = new FunctionObject(null, null); // FIXME
+            context.currentFrame.symbols[symbolName] = new FunctionObject(null, null); // FIXME: maybe define new type for builtin?
         }
     }
 
@@ -48,9 +50,12 @@ public class Executor
         {
             if (AlignProgramCounter())
             {
-                // If programCounter after dropping frames is still null, break
+                // If programCounter after dropping frames is still null, stop program execution
                 break;
             }
+
+            //logger.Debug(
+                //$"{context.programCounter.Value.debugInfo?.lineNumber}:{context.programCounter.Value.debugInfo?.linePosition}:preparing {context.programCounter.Value}");
 
             context.programCounter.Value.Prepare(context);
 
@@ -95,6 +100,8 @@ public class Executor
 
     void HandleException(Exception exception)
     {
+        var debugInfo = context.programCounter.Value.debugInfo;
+        //logger.Debug($"exception at {debugInfo.fileName}:{debugInfo.lineNumber}:{debugInfo.linePosition}");
         var backtrace = new List<Statement>();
         backtrace.Add(context.programCounter.Value);
         while (context.stackFrame.Count > 1)
@@ -117,8 +124,8 @@ public class Executor
             }
         }
 
-        context.valueStack.Clear();
-        context.callStack.Clear();
+        //context.valueStack.Clear();
+        //context.callStack.Clear();
         throw new UnhandledException(exception, backtrace);
     }
 
@@ -128,7 +135,13 @@ public class Executor
         foreach (var symbol in backtrace)
         {
             if (symbol.debugInfo != null)
-            print($"    {symbol.debugInfo.line} at {symbol.debugInfo.fileName}:{symbol.debugInfo.lineNumber}");
+            {
+                print($"\t{symbol.debugInfo.line} at {symbol.debugInfo.fileName}:{symbol.debugInfo.lineNumber}:{symbol.debugInfo.linePosition}");
+            }
+            else
+            {
+                print("\t ?? at ??:?");
+            }
         }
     }
 }

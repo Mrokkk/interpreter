@@ -12,15 +12,14 @@ public class CastingSystem
     public static void Initialize()
     {
         // TODO: how to treat builtin functions?
-
         typeInfo = new Dictionary<Types, TypeInfo>{
             {Types.Int, new TypeInfo(Types.Int, typeof(int), "int")},
             {Types.Float, new TypeInfo(Types.Float, typeof(float), "float")},
             {Types.Double, new TypeInfo(Types.Double, typeof(double), "double")},
             {Types.String, new TypeInfo(Types.String, typeof(string), "string")},
             {Types.Bool, new TypeInfo(Types.Bool, typeof(bool), "bool")},
-            {Types.function, new TypeInfo(Types.function, typeof(FunctionObject), "function")},
-            {Types.exception, new TypeInfo(Types.exception, typeof(Exception), "exception")},
+            {Types.Function, new TypeInfo(Types.Function, typeof(FunctionObject), "function")},
+            {Types.Exception, new TypeInfo(Types.Exception, typeof(Exception), "exception")},
             {Types.List, new TypeInfo(Types.List, typeof(List<dynamic>), "[]")},
             {Types.IntList, new TypeInfo(Types.IntList, typeof(List<int>), "int[]")},
             {Types.FloatList, new TypeInfo(Types.FloatList, typeof(List<float>), "float[]")},
@@ -39,7 +38,7 @@ public class CastingSystem
             keywordToTypeInfo[typeInfo.name] = typeInfo;
         }
 
-        nativeTypeToType[typeof(Block)] = Types.function;
+        nativeTypeToType[typeof(Block)] = Types.Function;
 
         castingTable = new Dictionary<(Types, Types), Func<dynamic, dynamic>>();
         castingTable[(Types.Int, Types.Float)] = v => (float)v;

@@ -64,30 +64,4 @@ public class Builtins
     {
         throw new Exception(exception);
     }
-
-    public dynamic PrintState()
-    {
-        print("Variables:");
-
-        //foreach (var variable in context.currentFrame.symbols)
-        //{
-            //if (variable.Value.value == null)
-            //{
-                //print($"\t{variable.Key} : <null>");
-            //}
-            //else if (variable.Value.value is List<dynamic>)
-            //{
-                //int i = 0;
-                //foreach (var value in variable.Value.value as List<dynamic>)
-                //{
-                    //print($"\t{variable.Key}[{i++}] = {value.ToString()}");
-                //}
-            //}
-            //else
-            //{
-                //print($"\t{variable.Key} : {variable.Value.value.ToString()}");
-            //}
-        //}
-        return null;
-    }
 }

@@ -103,6 +103,7 @@ public class Lexer
     }
 
     Dictionary<Tokens, string> tokenRegexMap;
+    Logger logger;
 
     public Lexer()
     {
@@ -150,6 +151,7 @@ public class Lexer
             {Tokens.Semicolon, "\\;"},
             {Tokens.Newline, "\\\n"}
         };
+        logger = Logging.CreateLogger(this.GetType().Name);
     }
 
     public LinkedList<Token> Parse(string code)
@@ -167,36 +169,52 @@ public class Lexer
         int index = 0;
         int lineNumber = 1;
         int lastNewlineIndex = 0;
+        var previous = Tokens.Newline;
 
         foreach (var pair in sorted)
         {
-            if (pair.Key < index)
+            var tokenPosition = pair.Key;
+            var token = pair.Value;
+
+            if (tokenPosition < index)
             {
                 continue;
             }
 
             if (pair.Value.type == Tokens.Newline)
             {
-                //Console.WriteLine($"{pair.Key.ToString()} : {pair.Value.type}");
                 lineNumber++;
-                lastNewlineIndex = pair.Key + 1;
-                index = pair.Key + 1;
+                lastNewlineIndex = tokenPosition + 1;
+                index = tokenPosition + 1;
+                previous = Tokens.Newline;
                 continue;
             }
             else if (pair.Value.type == Tokens.Comment)
             {
-                index = pair.Key + pair.Value.value.Length;
+                index = tokenPosition + token.value.Length;
+                previous = Tokens.Comment;
                 continue;
             }
 
-            pair.Value.lineNumber = lineNumber;
-            pair.Value.rowNumber = index - lastNewlineIndex;
             var nextNewLineIndex = FindNextNewline(code, index);
-            pair.Value.line = code.Substring(lastNewlineIndex, nextNewLineIndex - lastNewlineIndex);
+            token.lineNumber = lineNumber;
+            token.rowNumber = index - lastNewlineIndex; // FIXME: it does not work correctly
+            token.line = code.Substring(lastNewlineIndex, nextNewLineIndex - lastNewlineIndex);
 
-            //Console.WriteLine($"{pair.Key.ToString()} : {pair.Value.type} : {pair.Value.value} : \"{pair.Value.line}\"");
-            list.AddLast(pair.Value);
-            index = pair.Key + pair.Value.value.Length;
+            if (previous == Tokens.Newline)
+            {
+                logger.Debug("{0}\t | line \"{1}\"", lineNumber, pair.Value.line);
+            }
+
+            logger.Debug("{0}:{1}\t | \t\t{2} : {3}",
+                lineNumber,
+                pair.Value.rowNumber,
+                pair.Value.type,
+                pair.Value.value);
+
+            list.AddLast(token);
+            index = tokenPosition + token.value.Length;
+            previous = token.type;
         }
 
         return list;

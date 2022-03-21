@@ -5,22 +5,21 @@ using System.Collections.Generic;
 
 using CommandLine;
 
-class Options
+public enum Verbosity
 {
-    public enum LogLevel
-    {
-        Debug,
-        Info,
-        None
-    };
+    Debug,
+    Info,
+    None
+};
 
+public class Options
+{
     [Value(index: 0, Required = false, HelpText = "File with source code")]
     public string filename { get; set; }
 
-    [Option(shortName: 'v', longName: "verbose", Required = false, HelpText = "Verbosity level (Debug, Info, None)", Default = LogLevel.None)]
-    public LogLevel verbose { get; set; }
+    [Option(shortName: 'v', longName: "verbose", Required = false, HelpText = "Verbosity level (Debug, Info, None)", Default = Verbosity.None)]
+    public Verbosity verbose { get; set; }
 }
-
 
 public class SystemPath
 {
@@ -59,8 +58,10 @@ class Program
             .WithNotParsed(HandleParseError);
     }
 
-    private static void RunParser(Options options)
+    static void RunParser(Options options)
     {
+        Logging.Initialize(options.verbose, !Console.IsErrorRedirected, Console.Error);
+
         string fileName = options.filename != null
             ? Path.GetFullPath(options.filename)
             : null;
@@ -81,7 +82,6 @@ class Program
         {
             interpreter.Start(reader, GetWriter());
         }
-
     }
 
     static void HandleParseError(IEnumerable<Error> errs)

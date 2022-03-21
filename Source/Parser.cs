@@ -23,7 +23,7 @@ public class Parser
             Lexer.Tokens tokenType,
             Func<TokenHead, T> action)
         {
-            if (head.Current != null && head.Current.type == tokenType)
+            if (head.Current is not null && head.Current.type == tokenType)
             {
                 this.action = action;
             }
@@ -32,7 +32,7 @@ public class Parser
 
         public T Hit()
         {
-            return action != null
+            return action is not null
                 ? action(head)
                 : null;
         }
@@ -117,7 +117,7 @@ public class Parser
         try
         {
             var head = new TokenHead(token);
-            while (head.Current != null)
+            while (head.Current is not null)
             {
                 if (head.Current.type == Lexer.Tokens.Semicolon)
                 {
@@ -216,10 +216,10 @@ public class Parser
         head.MoveForward();
 
         var arguments = new List<Expression>();
-        while (head.Current != null && head.Current.type != Lexer.Tokens.RightParenth)
+        while (head.Current is not null && head.Current.type != Lexer.Tokens.RightParenth)
         {
             arguments.Add(ParseExpression(head));
-            if (head.Current != null && head.Current.type == Lexer.Tokens.Comma)
+            if (head.Current is not null && head.Current.type == Lexer.Tokens.Comma)
             {
                 head.MoveForward();
             }
@@ -311,10 +311,10 @@ public class Parser
 
         var block = new Block();
 
-        while (head.Current != null && head.Current.type != Lexer.Tokens.RightBrace)
+        while (head.Current is not null && head.Current.type != Lexer.Tokens.RightBrace)
         {
             var statement = ParseStatement(head, "Expected statement after");
-            if (!(statement is Nop))
+            if (statement is not Nop)
             {
                 block.Add(statement);
             }
@@ -414,6 +414,7 @@ public class Parser
         head.MoveForward();
     }
 
+    // FIXME: it allocates memory every time ParseExpression or ParseTerm is called
     delegate Expression ParseDelagate(TokenHead head);
 
     Expression ParseExpression(TokenHead head)
@@ -500,11 +501,11 @@ public class Parser
         head.MoveForward();
         head.Assert("Expected \";\" or expression");
 
-        if (expression != null && expression is Identifier && head.Current.type == Lexer.Tokens.LeftBracket)
+        if (expression is not null && expression is Identifier && head.Current.type == Lexer.Tokens.LeftBracket)
         {
             head.MoveForward();
             var list = new ListExpression(expression as Identifier);
-            while (head.Current != null && head.Current.type != Lexer.Tokens.RightBracket)
+            while (head.Current is not null && head.Current.type != Lexer.Tokens.RightBracket)
             {
                 list.Add(ParseExpression(head));
                 if (head.Current is null || (head.Current.type != Lexer.Tokens.Comma && head.Current.type != Lexer.Tokens.RightBracket))
@@ -525,7 +526,7 @@ public class Parser
 
         if (head.Current != null && head.Current.type == Lexer.Tokens.LeftParenth)
         {
-            if (!(expression is Identifier))
+            if (expression is not Identifier)
             {
                 throw new SyntaxError("Expected identifier before", head.Current);
             }
@@ -533,7 +534,7 @@ public class Parser
         }
         else if (head.Current != null && head.Current.type == Lexer.Tokens.Lambda)
         {
-            if (!(expression is Identifier))
+            if (expression is not Identifier)
             {
                 throw new SyntaxError("Expected identifier before", head.Current);
             }
@@ -571,6 +572,7 @@ public class Parser
     {
         statement.debugInfo = new DebugInfo(
             token.lineNumber,
+            token.rowNumber,
             token.line,
             fileName);
         return statement;
